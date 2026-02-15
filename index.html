@@ -220,6 +220,21 @@
                         </div>
 
                         <div class="form-group">
+                            <label>Mobile No</label>
+                            <input type="text" id="retailerMobile" placeholder="Auto-filled from retailer" readonly>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Address</label>
+                            <input type="text" id="retailerAddress" placeholder="Auto-filled from retailer" readonly>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Address 2</label>
+                            <input type="text" id="retailerAddress2" placeholder="Auto-filled from retailer" readonly>
+                        </div>
+
+                        <div class="form-group">
                             <label>Product <span class="required">*</span></label>
                             <div class="search-select" id="productSelect">
                                 <input type="text" id="productInput" placeholder="Type to search product..." autocomplete="off">
@@ -329,7 +344,9 @@
                 retailers = data.retailers || [];
                 products = data.products || [];
 
-                initSearchSelect("retailerInput", "retailerDropdown", "retailerValue", retailers);
+                // Retailer dropdown — uses objects, auto-fills address/mobile
+                initRetailerSearch();
+                // Product dropdown — uses plain strings
                 initSearchSelect("productInput", "productDropdown", "productValue", products);
 
                 document.getElementById("loadingOverlay").style.display = "none";
@@ -341,7 +358,116 @@
             }
         }
 
-        // ======== SEARCHABLE DROPDOWN COMPONENT ========
+        // ======== RETAILER SEARCHABLE DROPDOWN (with auto-fill) ========
+        function initRetailerSearch() {
+            const input = document.getElementById("retailerInput");
+            const dropdown = document.getElementById("retailerDropdown");
+            const hidden = document.getElementById("retailerValue");
+            let highlightIndex = -1;
+
+            function renderDropdown(filter) {
+                const query = filter.toLowerCase();
+                const filtered = query
+                    ? retailers.filter(r => r.name.toLowerCase().includes(query))
+                    : retailers.slice(0, 50);
+
+                dropdown.innerHTML = "";
+                highlightIndex = -1;
+
+                if (filtered.length === 0) {
+                    dropdown.innerHTML = '<div class="dropdown-empty">No matches found</div>';
+                } else {
+                    const showItems = filtered.slice(0, 100);
+                    showItems.forEach((r, i) => {
+                        const div = document.createElement("div");
+                        div.className = "dropdown-item";
+                        div.textContent = r.name;
+                        div.addEventListener("mousedown", function (e) {
+                            e.preventDefault();
+                            selectRetailer(r);
+                        });
+                        dropdown.appendChild(div);
+                    });
+                    if (filtered.length > 100) {
+                        const countDiv = document.createElement("div");
+                        countDiv.className = "dropdown-count";
+                        countDiv.textContent = filtered.length + " matches — type more to narrow down";
+                        dropdown.appendChild(countDiv);
+                    }
+                }
+                dropdown.classList.add("open");
+            }
+
+            function selectRetailer(r) {
+                input.value = r.name;
+                hidden.value = r.name;
+                document.getElementById("retailerAddress").value = r.address || "";
+                document.getElementById("retailerAddress2").value = r.address2 || "";
+                document.getElementById("retailerMobile").value = r.mobile || "";
+                dropdown.classList.remove("open");
+            }
+
+            function clearRetailerFields() {
+                document.getElementById("retailerAddress").value = "";
+                document.getElementById("retailerAddress2").value = "";
+                document.getElementById("retailerMobile").value = "";
+            }
+
+            input.addEventListener("focus", function () {
+                renderDropdown(input.value);
+            });
+
+            input.addEventListener("input", function () {
+                hidden.value = "";
+                clearRetailerFields();
+                renderDropdown(input.value);
+            });
+
+            input.addEventListener("blur", function () {
+                setTimeout(() => {
+                    dropdown.classList.remove("open");
+                    const match = retailers.find(r => r.name.toLowerCase() === input.value.toLowerCase());
+                    if (match) {
+                        selectRetailer(match);
+                    } else if (!hidden.value) {
+                        input.value = "";
+                        clearRetailerFields();
+                    }
+                }, 150);
+            });
+
+            input.addEventListener("keydown", function (e) {
+                const visibleItems = dropdown.querySelectorAll(".dropdown-item");
+                if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    highlightIndex = Math.min(highlightIndex + 1, visibleItems.length - 1);
+                    updateHighlight(visibleItems);
+                } else if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    highlightIndex = Math.max(highlightIndex - 1, 0);
+                    updateHighlight(visibleItems);
+                } else if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (highlightIndex >= 0 && visibleItems[highlightIndex]) {
+                        const name = visibleItems[highlightIndex].textContent;
+                        const match = retailers.find(r => r.name === name);
+                        if (match) selectRetailer(match);
+                    }
+                } else if (e.key === "Escape") {
+                    dropdown.classList.remove("open");
+                    input.blur();
+                }
+            });
+
+            function updateHighlight(items) {
+                items.forEach((el, i) => {
+                    el.classList.toggle("highlighted", i === highlightIndex);
+                    if (i === highlightIndex) el.scrollIntoView({ block: "nearest" });
+                });
+            }
+        }
+
+        // ======== PRODUCT SEARCHABLE DROPDOWN (plain strings) ========
         function initSearchSelect(inputId, dropdownId, hiddenId, items) {
             const input = document.getElementById(inputId);
             const dropdown = document.getElementById(dropdownId);
@@ -352,7 +478,7 @@
                 const query = filter.toLowerCase();
                 const filtered = query
                     ? items.filter(item => item.toLowerCase().includes(query))
-                    : items.slice(0, 50); // Show first 50 when no filter
+                    : items.slice(0, 50);
 
                 dropdown.innerHTML = "";
                 highlightIndex = -1;
@@ -360,7 +486,7 @@
                 if (filtered.length === 0) {
                     dropdown.innerHTML = '<div class="dropdown-empty">No matches found</div>';
                 } else {
-                    const showItems = filtered.slice(0, 100); // Cap visible items at 100
+                    const showItems = filtered.slice(0, 100);
                     showItems.forEach((item, i) => {
                         const div = document.createElement("div");
                         div.className = "dropdown-item";
@@ -399,19 +525,16 @@
             input.addEventListener("blur", function () {
                 setTimeout(() => {
                     dropdown.classList.remove("open");
-                    // If typed text matches an item exactly, select it
                     const match = items.find(item => item.toLowerCase() === input.value.toLowerCase());
                     if (match) {
                         input.value = match;
                         hidden.value = match;
                     } else if (!hidden.value) {
-                        // No valid selection — clear
                         input.value = "";
                     }
                 }, 150);
             });
 
-            // Keyboard navigation
             input.addEventListener("keydown", function (e) {
                 const visibleItems = dropdown.querySelectorAll(".dropdown-item");
                 if (e.key === "ArrowDown") {
@@ -475,6 +598,9 @@
             const orderData = {
                 employee: document.getElementById("employeeName").value,
                 retailer: retailerVal,
+                address: document.getElementById("retailerAddress").value || "-",
+                address2: document.getElementById("retailerAddress2").value || "-",
+                mobile: document.getElementById("retailerMobile").value || "-",
                 product: productVal,
                 quantity: document.getElementById("quantity").value + " " + document.getElementById("quantityUnit").value,
                 specialPrice: document.getElementById("specialPrice").value || "-",
@@ -502,6 +628,9 @@
         function resetForm() {
             document.getElementById("retailerInput").value = "";
             document.getElementById("retailerValue").value = "";
+            document.getElementById("retailerAddress").value = "";
+            document.getElementById("retailerAddress2").value = "";
+            document.getElementById("retailerMobile").value = "";
             document.getElementById("productInput").value = "";
             document.getElementById("productValue").value = "";
             document.getElementById("quantity").value = "";
