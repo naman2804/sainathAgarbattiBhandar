@@ -304,9 +304,9 @@
                                 <div style="display:flex; gap:6px;">
                                     <input type="number" id="quantity" min="1" placeholder="Qty" style="flex:1; min-width:0;">
                                     <select id="quantityUnit" style="width:70px;">
-                                        <option value="pcs">Pcs</option>
-                                        <option value="doz">Doz</option>
-                                        <option value="kgs">Kgs</option>
+                                        <option value="Pcs.">Pcs.</option>
+                                        <option value="Dozen">Dozen</option>
+                                        <option value="Kgs.">Kgs.</option>
                                     </select>
                                 </div>
                             </div>
@@ -330,6 +330,7 @@
                                         <th>#</th>
                                         <th>Product</th>
                                         <th>Qty</th>
+                                        <th>Unit</th>
                                         <th>Sp. Price</th>
                                         <th></th>
                                     </tr>
@@ -675,7 +676,8 @@
 
             orderProducts.push({
                 product: productVal,
-                quantity: qty + " " + unit,
+                quantity: qty,
+                unit: unit,
                 specialPrice: sp || "-"
             });
 
@@ -685,7 +687,7 @@
             document.getElementById("productInput").value = "";
             document.getElementById("productValue").value = "";
             document.getElementById("quantity").value = "";
-            document.getElementById("quantityUnit").value = "pcs";
+            document.getElementById("quantityUnit").value = "Pcs.";
             document.getElementById("specialPrice").value = "";
             document.getElementById("productInput").focus();
         }
@@ -714,6 +716,7 @@
                     <td>${i + 1}</td>
                     <td>${p.product}</td>
                     <td>${p.quantity}</td>
+                    <td>${p.unit}</td>
                     <td>${sp}</td>
                     <td><button type="button" class="btn-remove" onclick="removeProduct(${i})">&#10005;</button></td>
                 </tr>`;
@@ -786,7 +789,7 @@
             document.getElementById("productInput").value = "";
             document.getElementById("productValue").value = "";
             document.getElementById("quantity").value = "";
-            document.getElementById("quantityUnit").value = "pcs";
+            document.getElementById("quantityUnit").value = "Pcs.";
             document.getElementById("specialPrice").value = "";
             document.getElementById("remarks").value = "";
             orderProducts = [];

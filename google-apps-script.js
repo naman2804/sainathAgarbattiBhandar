@@ -55,7 +55,7 @@ function doPost(e) {
 
   // Auto-create headers if sheet is empty
   if (sheet.getLastRow() === 0) {
-    sheet.appendRow(["Date", "Time", "Employee", "Retailer", "Address", "Address2", "Mobile No", "Product", "Quantity", "Special Price", "Remarks"]);
+    sheet.appendRow(["Date", "Time", "Employee", "Retailer", "Address", "Address2", "Mobile No", "Product", "Quantity", "Unit", "Special Price", "Remarks"]);
     sheet.getRange("1:1").setFontWeight("bold");
   }
 
@@ -79,6 +79,7 @@ function doPost(e) {
         date, time, employee, retailer, address, address2, mobile,
         products[i].product,
         products[i].quantity,
+        products[i].unit || "-",
         products[i].specialPrice || "-",
         remarks
       ]);
@@ -89,6 +90,7 @@ function doPost(e) {
       date, time, employee, retailer, address, address2, mobile,
       e.parameter.product || "-",
       e.parameter.quantity || "-",
+      e.parameter.unit || "-",
       e.parameter.specialPrice || "-",
       remarks
     ]);
