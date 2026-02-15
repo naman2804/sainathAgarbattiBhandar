@@ -47,7 +47,8 @@ function doGet(e) {
   return ContentService.createTextOutput("OK");
 }
 
-// Handle POST requests — saves an order to the "Orders" sheet
+// Handle POST requests — saves order(s) to the "Orders" sheet
+// Supports multiple products per order (one row per product)
 function doPost(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName("Orders");
@@ -55,7 +56,6 @@ function doPost(e) {
   // Auto-create headers if sheet is empty
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(["Date", "Time", "Employee", "Retailer", "Address", "Address2", "Mobile No", "Product", "Quantity", "Special Price", "Remarks"]);
-    // Bold the header row
     sheet.getRange("1:1").setFontWeight("bold");
   }
 
@@ -63,19 +63,36 @@ function doPost(e) {
   var date = Utilities.formatDate(now, Session.getScriptTimeZone(), "dd/MM/yyyy");
   var time = Utilities.formatDate(now, Session.getScriptTimeZone(), "hh:mm a");
 
-  sheet.appendRow([
-    date,
-    time,
-    e.parameter.employee,
-    e.parameter.retailer,
-    e.parameter.address || "-",
-    e.parameter.address2 || "-",
-    e.parameter.mobile || "-",
-    e.parameter.product,
-    e.parameter.quantity,
-    e.parameter.specialPrice || "-",
-    e.parameter.remarks || "-"
-  ]);
+  var employee = e.parameter.employee;
+  var retailer = e.parameter.retailer;
+  var address = e.parameter.address || "-";
+  var address2 = e.parameter.address2 || "-";
+  var mobile = e.parameter.mobile || "-";
+  var remarks = e.parameter.remarks || "-";
+
+  // Parse products array (multiple products per order)
+  var productsJson = e.parameter.products;
+  if (productsJson) {
+    var products = JSON.parse(productsJson);
+    for (var i = 0; i < products.length; i++) {
+      sheet.appendRow([
+        date, time, employee, retailer, address, address2, mobile,
+        products[i].product,
+        products[i].quantity,
+        products[i].specialPrice || "-",
+        remarks
+      ]);
+    }
+  } else {
+    // Fallback: single product (backwards compatible)
+    sheet.appendRow([
+      date, time, employee, retailer, address, address2, mobile,
+      e.parameter.product || "-",
+      e.parameter.quantity || "-",
+      e.parameter.specialPrice || "-",
+      remarks
+    ]);
+  }
 
   return ContentService.createTextOutput(JSON.stringify({ success: true }))
     .setMimeType(ContentService.MimeType.JSON);
