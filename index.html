@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sainath Agarbatti Bhandar - Order Entry</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fff8f0; min-height: 100vh; }
+
+        .header {
+            background: linear-gradient(135deg, #b8860b, #e8a317, #d4851f);
+            color: white; padding: 20px 30px; text-align: center;
+            box-shadow: 0 4px 15px rgba(184, 134, 11, 0.4); position: relative;
+        }
+        .header h1 { font-size: 2rem; font-weight: 700; letter-spacing: 1px; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
+        .header p { font-size: 0.95rem; margin-top: 5px; opacity: 0.9; }
+        .header-user {
+            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .header-user span { font-size: 0.9rem; opacity: 0.95; }
+        .btn-logout {
+            background: rgba(255,255,255,0.2); color: white;
+            border: 1px solid rgba(255,255,255,0.4); padding: 6px 16px;
+            border-radius: 6px; font-size: 0.85rem; cursor: pointer; transition: background 0.2s;
+        }
+        .btn-logout:hover { background: rgba(255,255,255,0.35); }
+
+        /* Login Page */
+        .login-page {
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+            background: linear-gradient(135deg, #fff8f0 0%, #fce8d0 100%);
+        }
+        .login-card {
+            background: white; border-radius: 16px; padding: 40px 35px;
+            width: 100%; max-width: 400px;
+            box-shadow: 0 8px 30px rgba(184, 134, 11, 0.15);
+            border-top: 5px solid #d4851f; text-align: center;
+        }
+        .login-card .logo-title { color: #b8860b; font-size: 1.6rem; font-weight: 700; margin-bottom: 5px; }
+        .login-card .logo-subtitle { color: #999; font-size: 0.9rem; margin-bottom: 30px; }
+        .login-card .form-group { text-align: left; margin-bottom: 18px; }
+        .login-card .form-group label { font-weight: 600; color: #555; margin-bottom: 6px; font-size: 0.9rem; display: block; }
+        .login-card .form-group input {
+            width: 100%; padding: 11px 14px; border: 2px solid #e0d5c5;
+            border-radius: 8px; font-size: 0.95rem; transition: border-color 0.2s, box-shadow 0.2s; font-family: inherit;
+        }
+        .login-card .form-group input:focus { outline: none; border-color: #d4851f; box-shadow: 0 0 0 3px rgba(212, 133, 31, 0.15); }
+        .login-error { color: #e74c3c; font-size: 0.85rem; margin-bottom: 12px; min-height: 20px; }
+        .btn-login {
+            width: 100%; padding: 12px;
+            background: linear-gradient(135deg, #d4851f, #e8a317);
+            color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600;
+            cursor: pointer; box-shadow: 0 3px 10px rgba(212, 133, 31, 0.3);
+            transition: box-shadow 0.2s, transform 0.1s;
+        }
+        .btn-login:hover { box-shadow: 0 5px 15px rgba(212, 133, 31, 0.45); }
+        .btn-login:active { transform: scale(0.97); }
+
+        /* App Page */
+        .app-page { display: none; }
+        .main-container { max-width: 600px; margin: 30px auto; padding: 0 20px; padding-bottom: 40px; }
+
+        .form-card {
+            background: white; border-radius: 12px; padding: 30px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08); border-top: 4px solid #d4851f;
+        }
+        .form-card h2 { color: #b8860b; margin-bottom: 25px; font-size: 1.4rem; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-weight: 600; color: #555; margin-bottom: 6px; font-size: 0.9rem; }
+        .form-group label .required { color: #e74c3c; }
+        .form-group input, .form-group select {
+            padding: 10px 14px; border: 2px solid #e0d5c5; border-radius: 8px;
+            font-size: 0.95rem; transition: border-color 0.2s, box-shadow 0.2s; font-family: inherit;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none; border-color: #d4851f; box-shadow: 0 0 0 3px rgba(212, 133, 31, 0.15);
+        }
+        .form-group select { cursor: pointer; background: white; }
+        .form-group input[readonly] { background: #f5f0e8; color: #888; cursor: not-allowed; }
+
+        /* Searchable Dropdown */
+        .search-select { position: relative; }
+        .search-select input {
+            width: 100%; padding: 10px 14px; border: 2px solid #e0d5c5; border-radius: 8px;
+            font-size: 0.95rem; font-family: inherit; transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-select input:focus {
+            outline: none; border-color: #d4851f; box-shadow: 0 0 0 3px rgba(212, 133, 31, 0.15);
+        }
+        .search-select .dropdown-list {
+            display: none; position: absolute; top: 100%; left: 0; right: 0;
+            max-height: 200px; overflow-y: auto; background: white;
+            border: 2px solid #d4851f; border-top: none; border-radius: 0 0 8px 8px;
+            z-index: 100; box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+        .search-select .dropdown-list.open { display: block; }
+        .search-select .dropdown-item {
+            padding: 9px 14px; cursor: pointer; font-size: 0.9rem; border-bottom: 1px solid #f5f0e8;
+        }
+        .search-select .dropdown-item:hover { background: #fff8f0; }
+        .search-select .dropdown-item.highlighted { background: #fef3e2; }
+        .search-select .dropdown-empty {
+            padding: 12px 14px; color: #aaa; font-size: 0.9rem; text-align: center;
+        }
+        .search-select .dropdown-count {
+            padding: 6px 14px; color: #b8860b; font-size: 0.78rem; text-align: right;
+            border-top: 1px solid #f0e6d6; background: #fffdf8;
+        }
+
+        .btn-row { display: flex; gap: 12px; margin-top: 25px; justify-content: flex-end; }
+        .btn {
+            padding: 12px 30px; border: none; border-radius: 8px;
+            font-size: 1rem; font-weight: 600; cursor: pointer; transition: transform 0.1s, box-shadow 0.2s;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-submit {
+            background: linear-gradient(135deg, #d4851f, #e8a317); color: white;
+            box-shadow: 0 3px 10px rgba(212, 133, 31, 0.3);
+        }
+        .btn-submit:hover { box-shadow: 0 5px 15px rgba(212, 133, 31, 0.45); }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-reset { background: #f0e6d6; color: #8b6914; }
+        .btn-reset:hover { background: #e6d9c3; }
+
+        /* Loading spinner */
+        .loading-overlay {
+            display: none; justify-content: center; align-items: center;
+            padding: 60px 20px; text-align: center;
+        }
+        .loading-overlay.show { display: flex; }
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid #e0d5c5;
+            border-top-color: #d4851f; border-radius: 50%; animation: spin 0.8s linear infinite;
+            margin-right: 15px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: #888; font-size: 0.95rem; }
+
+        /* Toast */
+        .toast {
+            position: fixed; top: 20px; right: 20px; color: white;
+            padding: 15px 25px; border-radius: 8px; font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transform: translateX(400px); transition: transform 0.4s ease; z-index: 1000;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.success { background: #2ecc71; }
+        .toast.error { background: #e74c3c; }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.4rem; }
+            .header-user { position: static; transform: none; justify-content: center; margin-top: 10px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .btn-row { flex-direction: column; }
+            .btn { width: 100%; text-align: center; }
+            .login-card { margin: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN PAGE -->
+    <div class="login-page" id="loginPage">
+        <div class="login-card">
+            <div class="logo-title">Sainath Agarbatti Bhandar</div>
+            <div class="logo-subtitle">Employee Login</div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUsername" placeholder="Enter username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter password" required autocomplete="current-password">
+                </div>
+                <div class="login-error" id="loginError"></div>
+                <button type="submit" class="btn-login">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- APP PAGE -->
+    <div class="app-page" id="appPage">
+        <div class="header">
+            <h1>Sainath Agarbatti Bhandar</h1>
+            <p>Order Entry System</p>
+            <div class="header-user">
+                <span id="headerUsername"></span>
+                <button class="btn-logout" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="main-container">
+            <!-- Loading state while fetching data from Google Sheets -->
+            <div class="loading-overlay show" id="loadingOverlay">
+                <div class="spinner"></div>
+                <div class="loading-text">Loading products & retailers...</div>
+            </div>
+
+            <div class="form-card" id="orderFormCard" style="display:none;">
+                <h2>New Order</h2>
+                <form id="orderForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Employee Name</label>
+                            <input type="text" id="employeeName" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Retailer <span class="required">*</span></label>
+                            <div class="search-select" id="retailerSelect">
+                                <input type="text" id="retailerInput" placeholder="Type to search retailer..." autocomplete="off">
+                                <input type="hidden" id="retailerValue">
+                                <div class="dropdown-list" id="retailerDropdown"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Product <span class="required">*</span></label>
+                            <div class="search-select" id="productSelect">
+                                <input type="text" id="productInput" placeholder="Type to search product..." autocomplete="off">
+                                <input type="hidden" id="productValue">
+                                <div class="dropdown-list" id="productDropdown"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Quantity <span class="required">*</span></label>
+                            <input type="number" id="quantity" min="1" placeholder="Enter quantity" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Special Price (if any)</label>
+                            <input type="number" id="specialPrice" min="0" step="0.01" placeholder="Leave blank if standard price">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Remarks / Comments</label>
+                            <input type="text" id="remarks" placeholder="Any special instructions">
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-reset" onclick="resetForm()">Clear</button>
+                        <button type="submit" class="btn btn-submit" id="submitBtn">Submit Order</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ============================================================
+        // GOOGLE APPS SCRIPT URL — Paste your deployed script URL here
+        // ============================================================
+        const GOOGLE_SCRIPT_URL = "PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE";
+        // ============================================================
+
+        // ============================================================
+        // EMPLOYEE CREDENTIALS — Add/remove employees here
+        // ============================================================
+        const employees = [
+            { username: "sam",    password: "sam123",    displayName: "Sam" },
+            { username: "rahul",  password: "rahul123",  displayName: "Rahul" },
+            { username: "vijay",  password: "vijay123",  displayName: "Vijay" },
+            { username: "amit",   password: "amit123",   displayName: "Amit" },
+            { username: "admin",  password: "admin123",  displayName: "Admin" }
+        ];
+        // ============================================================
+
+        // Data loaded from Google Sheets
+        let retailers = [];
+        let products = [];
+        let currentUser = null;
+
+        // Check if already logged in
+        const saved = sessionStorage.getItem("sainath_user");
+        if (saved) {
+            currentUser = JSON.parse(saved);
+            showApp();
+        }
+
+        // Login
+        document.getElementById("loginForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const username = document.getElementById("loginUsername").value.trim().toLowerCase();
+            const password = document.getElementById("loginPassword").value;
+
+            const emp = employees.find(
+                e => e.username.toLowerCase() === username && e.password === password
+            );
+
+            if (emp) {
+                currentUser = { username: emp.username, displayName: emp.displayName };
+                sessionStorage.setItem("sainath_user", JSON.stringify(currentUser));
+                document.getElementById("loginError").textContent = "";
+                showApp();
+            } else {
+                document.getElementById("loginError").textContent = "Invalid username or password.";
+            }
+        });
+
+        async function showApp() {
+            document.getElementById("loginPage").style.display = "none";
+            document.getElementById("appPage").style.display = "block";
+            document.getElementById("headerUsername").textContent = currentUser.displayName;
+            document.getElementById("employeeName").value = currentUser.displayName;
+            await loadData();
+        }
+
+        // Load retailers & products from Google Sheets
+        async function loadData() {
+            try {
+                const res = await fetch(GOOGLE_SCRIPT_URL + "?action=getData");
+                const data = await res.json();
+                retailers = data.retailers || [];
+                products = data.products || [];
+
+                initSearchSelect("retailerInput", "retailerDropdown", "retailerValue", retailers);
+                initSearchSelect("productInput", "productDropdown", "productValue", products);
+
+                document.getElementById("loadingOverlay").style.display = "none";
+                document.getElementById("orderFormCard").style.display = "block";
+            } catch (err) {
+                document.querySelector(".loading-text").textContent =
+                    "Failed to load data. Please check your connection and refresh.";
+                document.querySelector(".spinner").style.display = "none";
+            }
+        }
+
+        // ======== SEARCHABLE DROPDOWN COMPONENT ========
+        function initSearchSelect(inputId, dropdownId, hiddenId, items) {
+            const input = document.getElementById(inputId);
+            const dropdown = document.getElementById(dropdownId);
+            const hidden = document.getElementById(hiddenId);
+            let highlightIndex = -1;
+
+            function renderDropdown(filter) {
+                const query = filter.toLowerCase();
+                const filtered = query
+                    ? items.filter(item => item.toLowerCase().includes(query))
+                    : items.slice(0, 50); // Show first 50 when no filter
+
+                dropdown.innerHTML = "";
+                highlightIndex = -1;
+
+                if (filtered.length === 0) {
+                    dropdown.innerHTML = '<div class="dropdown-empty">No matches found</div>';
+                } else {
+                    const showItems = filtered.slice(0, 100); // Cap visible items at 100
+                    showItems.forEach((item, i) => {
+                        const div = document.createElement("div");
+                        div.className = "dropdown-item";
+                        div.textContent = item;
+                        div.addEventListener("mousedown", function (e) {
+                            e.preventDefault();
+                            selectItem(item);
+                        });
+                        dropdown.appendChild(div);
+                    });
+                    if (filtered.length > 100) {
+                        const countDiv = document.createElement("div");
+                        countDiv.className = "dropdown-count";
+                        countDiv.textContent = filtered.length + " matches — type more to narrow down";
+                        dropdown.appendChild(countDiv);
+                    }
+                }
+                dropdown.classList.add("open");
+            }
+
+            function selectItem(value) {
+                input.value = value;
+                hidden.value = value;
+                dropdown.classList.remove("open");
+            }
+
+            input.addEventListener("focus", function () {
+                renderDropdown(input.value);
+            });
+
+            input.addEventListener("input", function () {
+                hidden.value = "";
+                renderDropdown(input.value);
+            });
+
+            input.addEventListener("blur", function () {
+                setTimeout(() => {
+                    dropdown.classList.remove("open");
+                    // If typed text matches an item exactly, select it
+                    const match = items.find(item => item.toLowerCase() === input.value.toLowerCase());
+                    if (match) {
+                        input.value = match;
+                        hidden.value = match;
+                    } else if (!hidden.value) {
+                        // No valid selection — clear
+                        input.value = "";
+                    }
+                }, 150);
+            });
+
+            // Keyboard navigation
+            input.addEventListener("keydown", function (e) {
+                const visibleItems = dropdown.querySelectorAll(".dropdown-item");
+                if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    highlightIndex = Math.min(highlightIndex + 1, visibleItems.length - 1);
+                    updateHighlight(visibleItems);
+                } else if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    highlightIndex = Math.max(highlightIndex - 1, 0);
+                    updateHighlight(visibleItems);
+                } else if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (highlightIndex >= 0 && visibleItems[highlightIndex]) {
+                        selectItem(visibleItems[highlightIndex].textContent);
+                    }
+                } else if (e.key === "Escape") {
+                    dropdown.classList.remove("open");
+                    input.blur();
+                }
+            });
+
+            function updateHighlight(items) {
+                items.forEach((el, i) => {
+                    el.classList.toggle("highlighted", i === highlightIndex);
+                    if (i === highlightIndex) el.scrollIntoView({ block: "nearest" });
+                });
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem("sainath_user");
+            currentUser = null;
+            document.getElementById("appPage").style.display = "none";
+            document.getElementById("loginPage").style.display = "flex";
+            document.getElementById("loginForm").reset();
+            document.getElementById("loginError").textContent = "";
+        }
+
+        // Submit order to Google Sheets
+        document.getElementById("orderForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const retailerVal = document.getElementById("retailerValue").value;
+            const productVal = document.getElementById("productValue").value;
+
+            if (!retailerVal) {
+                showToast("Please select a valid retailer.", "error");
+                document.getElementById("retailerInput").focus();
+                return;
+            }
+            if (!productVal) {
+                showToast("Please select a valid product.", "error");
+                document.getElementById("productInput").focus();
+                return;
+            }
+
+            const submitBtn = document.getElementById("submitBtn");
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Submitting...";
+
+            const orderData = {
+                employee: document.getElementById("employeeName").value,
+                retailer: retailerVal,
+                product: productVal,
+                quantity: document.getElementById("quantity").value,
+                specialPrice: document.getElementById("specialPrice").value || "-",
+                remarks: document.getElementById("remarks").value.trim() || "-"
+            };
+
+            try {
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams(orderData).toString()
+                });
+
+                showToast("Order submitted successfully!", "success");
+                resetForm();
+            } catch (err) {
+                showToast("Failed to submit. Check your connection.", "error");
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Submit Order";
+        });
+
+        function resetForm() {
+            document.getElementById("retailerInput").value = "";
+            document.getElementById("retailerValue").value = "";
+            document.getElementById("productInput").value = "";
+            document.getElementById("productValue").value = "";
+            document.getElementById("quantity").value = "";
+            document.getElementById("specialPrice").value = "";
+            document.getElementById("remarks").value = "";
+        }
+
+        function showToast(message, type) {
+            const toast = document.getElementById("toast");
+            toast.textContent = message;
+            toast.className = "toast " + type + " show";
+            setTimeout(() => { toast.className = "toast"; }, 3000);
+        }
+    </script>
+</body>
+</html>
