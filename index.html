@@ -24,6 +24,7 @@
             padding: 20px 30px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(184, 134, 11, 0.4);
+            position: relative;
         }
 
         .header h1 {
@@ -37,6 +38,132 @@
             font-size: 0.95rem;
             margin-top: 5px;
             opacity: 0.9;
+        }
+
+        .header-user {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-user span {
+            font-size: 0.9rem;
+            opacity: 0.95;
+        }
+
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.35);
+        }
+
+        /* ======== LOGIN PAGE ======== */
+        .login-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fff8f0 0%, #fce8d0 100%);
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px 35px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 30px rgba(184, 134, 11, 0.15);
+            border-top: 5px solid #d4851f;
+            text-align: center;
+        }
+
+        .login-card .logo-title {
+            color: #b8860b;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .login-card .logo-subtitle {
+            color: #999;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        .login-card .form-group {
+            text-align: left;
+            margin-bottom: 18px;
+        }
+
+        .login-card .form-group label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            display: block;
+        }
+
+        .login-card .form-group input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 2px solid #e0d5c5;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+
+        .login-card .form-group input:focus {
+            outline: none;
+            border-color: #d4851f;
+            box-shadow: 0 0 0 3px rgba(212, 133, 31, 0.15);
+        }
+
+        .login-error {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            min-height: 20px;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #d4851f, #e8a317);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(212, 133, 31, 0.3);
+            transition: box-shadow 0.2s, transform 0.1s;
+        }
+
+        .btn-login:hover {
+            box-shadow: 0 5px 15px rgba(212, 133, 31, 0.45);
+        }
+
+        .btn-login:active {
+            transform: scale(0.97);
+        }
+
+        /* ======== APP PAGE (hidden by default) ======== */
+        .app-page {
+            display: none;
         }
 
         /* Main Layout */
@@ -117,6 +244,12 @@
         .form-group select {
             cursor: pointer;
             background: white;
+        }
+
+        .form-group input[readonly] {
+            background: #f5f0e8;
+            color: #888;
+            cursor: not-allowed;
         }
 
         /* Buttons */
@@ -316,6 +449,13 @@
                 font-size: 1.4rem;
             }
 
+            .header-user {
+                position: static;
+                transform: none;
+                justify-content: center;
+                margin-top: 10px;
+            }
+
             .form-grid {
                 grid-template-columns: 1fr;
             }
@@ -328,91 +468,122 @@
                 width: 100%;
                 text-align: center;
             }
+
+            .login-card {
+                margin: 20px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>Sainath Aggarbatti Bhandar</h1>
-        <p>Order Entry System</p>
-    </div>
-
-    <div class="main-container">
-        <!-- Order Form -->
-        <div class="form-card">
-            <h2>New Order</h2>
-            <form id="orderForm">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Employee Name <span class="required">*</span></label>
-                        <input type="text" id="employeeName" placeholder="Enter your name" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Retailer <span class="required">*</span></label>
-                        <select id="retailerName" required>
-                            <option value="">-- Select Retailer --</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Product <span class="required">*</span></label>
-                        <select id="productName" required>
-                            <option value="">-- Select Product --</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Quantity <span class="required">*</span></label>
-                        <input type="number" id="quantity" min="1" placeholder="Enter quantity" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Special Price (if any)</label>
-                        <input type="number" id="specialPrice" min="0" step="0.01" placeholder="Leave blank if standard price">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Remarks / Comments</label>
-                        <input type="text" id="remarks" placeholder="Any special instructions">
-                    </div>
+    <!-- ======== LOGIN PAGE ======== -->
+    <div class="login-page" id="loginPage">
+        <div class="login-card">
+            <div class="logo-title">Sainath Aggarbatti Bhandar</div>
+            <div class="logo-subtitle">Employee Login</div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUsername" placeholder="Enter username" required autocomplete="username">
                 </div>
-
-                <div class="btn-row">
-                    <button type="button" class="btn btn-reset" onclick="resetForm()">Clear</button>
-                    <button type="submit" class="btn btn-submit">Submit Order</button>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter password" required autocomplete="current-password">
                 </div>
+                <div class="login-error" id="loginError"></div>
+                <button type="submit" class="btn-login">Login</button>
             </form>
         </div>
+    </div>
 
-        <!-- Orders Table -->
-        <div class="orders-section">
-            <div class="section-header">
-                <h2>Today's Orders <span class="orders-count" id="orderCount">0</span></h2>
-                <button class="btn-export" onclick="exportOrders()">Export to CSV</button>
+    <!-- ======== APP PAGE ======== -->
+    <div class="app-page" id="appPage">
+        <div class="header">
+            <h1>Sainath Aggarbatti Bhandar</h1>
+            <p>Order Entry System</p>
+            <div class="header-user">
+                <span id="headerUsername"></span>
+                <button class="btn-logout" onclick="logout()">Logout</button>
             </div>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Time</th>
-                            <th>Employee</th>
-                            <th>Retailer</th>
-                            <th>Product</th>
-                            <th>Qty</th>
-                            <th>Sp. Price</th>
-                            <th>Remarks</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="ordersBody">
-                        <tr>
-                            <td colspan="9" class="no-orders">No orders yet. Submit your first order above.</td>
-                        </tr>
-                    </tbody>
-                </table>
+        </div>
+
+        <div class="main-container">
+            <!-- Order Form -->
+            <div class="form-card">
+                <h2>New Order</h2>
+                <form id="orderForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Employee Name</label>
+                            <input type="text" id="employeeName" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Retailer <span class="required">*</span></label>
+                            <select id="retailerName" required>
+                                <option value="">-- Select Retailer --</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Product <span class="required">*</span></label>
+                            <select id="productName" required>
+                                <option value="">-- Select Product --</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Quantity <span class="required">*</span></label>
+                            <input type="number" id="quantity" min="1" placeholder="Enter quantity" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Special Price (if any)</label>
+                            <input type="number" id="specialPrice" min="0" step="0.01" placeholder="Leave blank if standard price">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Remarks / Comments</label>
+                            <input type="text" id="remarks" placeholder="Any special instructions">
+                        </div>
+                    </div>
+
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-reset" onclick="resetForm()">Clear</button>
+                        <button type="submit" class="btn btn-submit">Submit Order</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="orders-section">
+                <div class="section-header">
+                    <h2>Today's Orders <span class="orders-count" id="orderCount">0</span></h2>
+                    <button class="btn-export" onclick="exportOrders()">Export to CSV</button>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Time</th>
+                                <th>Employee</th>
+                                <th>Retailer</th>
+                                <th>Product</th>
+                                <th>Qty</th>
+                                <th>Sp. Price</th>
+                                <th>Remarks</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersBody">
+                            <tr>
+                                <td colspan="9" class="no-orders">No orders yet. Submit your first order above.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -421,6 +592,18 @@
     <div class="toast" id="toast">Order submitted successfully!</div>
 
     <script>
+        // ============================================================
+        // EMPLOYEE CREDENTIALS — Add/remove employees here
+        // ============================================================
+        const employees = [
+            { username: "sam",    password: "sam123",    displayName: "Sam" },
+            { username: "rahul",  password: "rahul123",  displayName: "Rahul" },
+            { username: "vijay",  password: "vijay123",  displayName: "Vijay" },
+            { username: "amit",   password: "amit123",   displayName: "Amit" },
+            { username: "admin",  password: "admin123",  displayName: "Admin" }
+        ];
+        // ============================================================
+
         // ============================================================
         // DUMMY DATA — Replace these arrays with your Excel data later
         // ============================================================
@@ -458,54 +641,107 @@
         ];
         // ============================================================
 
-        // Populate dropdowns
-        function populateDropdown(selectId, items) {
-            const select = document.getElementById(selectId);
-            items.sort().forEach(item => {
-                const option = document.createElement("option");
-                option.value = item;
-                option.textContent = item;
-                select.appendChild(option);
+        // ======== AUTH LOGIC ========
+        let currentUser = null;
+
+        // Check if already logged in
+        const savedUser = sessionStorage.getItem("sainath_user");
+        if (savedUser) {
+            currentUser = JSON.parse(savedUser);
+            showApp();
+        }
+
+        // Login form
+        document.getElementById("loginForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const username = document.getElementById("loginUsername").value.trim().toLowerCase();
+            const password = document.getElementById("loginPassword").value;
+
+            const employee = employees.find(
+                emp => emp.username.toLowerCase() === username && emp.password === password
+            );
+
+            if (employee) {
+                currentUser = { username: employee.username, displayName: employee.displayName };
+                sessionStorage.setItem("sainath_user", JSON.stringify(currentUser));
+                document.getElementById("loginError").textContent = "";
+                showApp();
+            } else {
+                document.getElementById("loginError").textContent = "Invalid username or password.";
+            }
+        });
+
+        function showApp() {
+            document.getElementById("loginPage").style.display = "none";
+            document.getElementById("appPage").style.display = "block";
+            document.getElementById("headerUsername").textContent = currentUser.displayName;
+            document.getElementById("employeeName").value = currentUser.displayName;
+            initApp();
+        }
+
+        function logout() {
+            sessionStorage.removeItem("sainath_user");
+            currentUser = null;
+            document.getElementById("appPage").style.display = "none";
+            document.getElementById("loginPage").style.display = "flex";
+            document.getElementById("loginForm").reset();
+            document.getElementById("loginError").textContent = "";
+        }
+
+        // ======== APP LOGIC ========
+        let appInitialized = false;
+
+        function initApp() {
+            if (appInitialized) return;
+            appInitialized = true;
+
+            // Populate dropdowns
+            function populateDropdown(selectId, items) {
+                const select = document.getElementById(selectId);
+                items.sort().forEach(item => {
+                    const option = document.createElement("option");
+                    option.value = item;
+                    option.textContent = item;
+                    select.appendChild(option);
+                });
+            }
+
+            populateDropdown("retailerName", retailers);
+            populateDropdown("productName", products);
+
+            renderOrders();
+
+            // Form submit
+            document.getElementById("orderForm").addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                const order = {
+                    id: Date.now(),
+                    time: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }),
+                    date: new Date().toLocaleDateString("en-IN"),
+                    employee: document.getElementById("employeeName").value,
+                    retailer: document.getElementById("retailerName").value,
+                    product: document.getElementById("productName").value,
+                    quantity: parseInt(document.getElementById("quantity").value),
+                    specialPrice: document.getElementById("specialPrice").value || "-",
+                    remarks: document.getElementById("remarks").value.trim() || "-"
+                };
+
+                orders.unshift(order);
+                localStorage.setItem("sainath_orders", JSON.stringify(orders));
+
+                renderOrders();
+                showToast();
+                document.getElementById("retailerName").value = "";
+                document.getElementById("productName").value = "";
+                document.getElementById("quantity").value = "";
+                document.getElementById("specialPrice").value = "";
+                document.getElementById("remarks").value = "";
             });
         }
 
-        populateDropdown("retailerName", retailers);
-        populateDropdown("productName", products);
-
-        // Orders stored in memory (and localStorage for persistence)
+        // Orders stored in localStorage
         let orders = JSON.parse(localStorage.getItem("sainath_orders") || "[]");
-
-        // Render table on load
-        renderOrders();
-
-        // Form submit
-        document.getElementById("orderForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-
-            const order = {
-                id: Date.now(),
-                time: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }),
-                date: new Date().toLocaleDateString("en-IN"),
-                employee: document.getElementById("employeeName").value.trim(),
-                retailer: document.getElementById("retailerName").value,
-                product: document.getElementById("productName").value,
-                quantity: parseInt(document.getElementById("quantity").value),
-                specialPrice: document.getElementById("specialPrice").value || "-",
-                remarks: document.getElementById("remarks").value.trim() || "-"
-            };
-
-            orders.unshift(order);
-            localStorage.setItem("sainath_orders", JSON.stringify(orders));
-
-            renderOrders();
-            showToast();
-            // Reset only some fields — keep employee name for convenience
-            document.getElementById("retailerName").value = "";
-            document.getElementById("productName").value = "";
-            document.getElementById("quantity").value = "";
-            document.getElementById("specialPrice").value = "";
-            document.getElementById("remarks").value = "";
-        });
 
         function renderOrders() {
             const tbody = document.getElementById("ordersBody");
@@ -525,7 +761,7 @@
                     <td>${o.retailer}</td>
                     <td>${o.product}</td>
                     <td>${o.quantity}</td>
-                    <td class="badge-price">${o.specialPrice !== "-" ? "₹" + o.specialPrice : "-"}</td>
+                    <td class="badge-price">${o.specialPrice !== "-" ? "\u20B9" + o.specialPrice : "-"}</td>
                     <td>${o.remarks}</td>
                     <td><button class="btn-delete" title="Delete" onclick="deleteOrder(${o.id})">&#10005;</button></td>
                 </tr>
@@ -540,7 +776,11 @@
         }
 
         function resetForm() {
-            document.getElementById("orderForm").reset();
+            document.getElementById("retailerName").value = "";
+            document.getElementById("productName").value = "";
+            document.getElementById("quantity").value = "";
+            document.getElementById("specialPrice").value = "";
+            document.getElementById("remarks").value = "";
         }
 
         function showToast() {
