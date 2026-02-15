@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sainath Aggarbatti Bhandar - Order Entry</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fff8f0; min-height: 100vh; }
+
+        .header {
+            background: linear-gradient(135deg, #b8860b, #e8a317, #d4851f);
+            color: white; padding: 20px 30px; text-align: center;
+            box-shadow: 0 4px 15px rgba(184, 134, 11, 0.4); position: relative;
+        }
+        .header h1 { font-size: 2rem; font-weight: 700; letter-spacing: 1px; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
+        .header p { font-size: 0.95rem; margin-top: 5px; opacity: 0.9; }
+        .header-user {
+            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .header-user span { font-size: 0.9rem; opacity: 0.95; }
+        .btn-logout {
+            background: rgba(255,255,255,0.2); color: white;
+            border: 1px solid rgba(255,255,255,0.4); padding: 6px 16px;
+            border-radius: 6px; font-size: 0.85rem; cursor: pointer; transition: background 0.2s;
+        }
+        .btn-logout:hover { background: rgba(255,255,255,0.35); }
+
+        /* Login Page */
+        .login-page {
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+            background: linear-gradient(135deg, #fff8f0 0%, #fce8d0 100%);
+        }
+        .login-card {
+            background: white; border-radius: 16px; padding: 40px 35px;
+            width: 100%; max-width: 400px;
+            box-shadow: 0 8px 30px rgba(184, 134, 11, 0.15);
+            border-top: 5px solid #d4851f; text-align: center;
+        }
+        .login-card .logo-title { color: #b8860b; font-size: 1.6rem; font-weight: 700; margin-bottom: 5px; }
+        .login-card .logo-subtitle { color: #999; font-size: 0.9rem; margin-bottom: 30px; }
+        .login-card .form-group { text-align: left; margin-bottom: 18px; }
+        .login-card .form-group label { font-weight: 600; color: #555; margin-bottom: 6px; font-size: 0.9rem; display: block; }
+        .login-card .form-group input {
+            width: 100%; padding: 11px 14px; border: 2px solid #e0d5c5;
+            border-radius: 8px; font-size: 0.95rem; transition: border-color 0.2s, box-shadow 0.2s; font-family: inherit;
+        }
+        .login-card .form-group input:focus { outline: none; border-color: #d4851f; box-shadow: 0 0 0 3px rgba(212, 133, 31, 0.15); }
+        .login-error { color: #e74c3c; font-size: 0.85rem; margin-bottom: 12px; min-height: 20px; }
+        .btn-login {
+            width: 100%; padding: 12px;
+            background: linear-gradient(135deg, #d4851f, #e8a317);
+            color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600;
+            cursor: pointer; box-shadow: 0 3px 10px rgba(212, 133, 31, 0.3);
+            transition: box-shadow 0.2s, transform 0.1s;
+        }
+        .btn-login:hover { box-shadow: 0 5px 15px rgba(212, 133, 31, 0.45); }
+        .btn-login:active { transform: scale(0.97); }
+
+        /* App Page */
+        .app-page { display: none; }
+        .main-container { max-width: 600px; margin: 30px auto; padding: 0 20px; }
+
+        .form-card {
+            background: white; border-radius: 12px; padding: 30px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08); border-top: 4px solid #d4851f;
+        }
+        .form-card h2 { color: #b8860b; margin-bottom: 25px; font-size: 1.4rem; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-group label { font-weight: 600; color: #555; margin-bottom: 6px; font-size: 0.9rem; }
+        .form-group label .required { color: #e74c3c; }
+        .form-group input, .form-group select {
+            padding: 10px 14px; border: 2px solid #e0d5c5; border-radius: 8px;
+            font-size: 0.95rem; transition: border-color 0.2s, box-shadow 0.2s; font-family: inherit;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none; border-color: #d4851f; box-shadow: 0 0 0 3px rgba(212, 133, 31, 0.15);
+        }
+        .form-group select { cursor: pointer; background: white; }
+        .form-group input[readonly] { background: #f5f0e8; color: #888; cursor: not-allowed; }
+
+        .btn-row { display: flex; gap: 12px; margin-top: 25px; justify-content: flex-end; }
+        .btn {
+            padding: 12px 30px; border: none; border-radius: 8px;
+            font-size: 1rem; font-weight: 600; cursor: pointer; transition: transform 0.1s, box-shadow 0.2s;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-submit {
+            background: linear-gradient(135deg, #d4851f, #e8a317); color: white;
+            box-shadow: 0 3px 10px rgba(212, 133, 31, 0.3);
+        }
+        .btn-submit:hover { box-shadow: 0 5px 15px rgba(212, 133, 31, 0.45); }
+        .btn-reset { background: #f0e6d6; color: #8b6914; }
+        .btn-reset:hover { background: #e6d9c3; }
+
+        /* Toast */
+        .toast {
+            position: fixed; top: 20px; right: 20px; background: #2ecc71; color: white;
+            padding: 15px 25px; border-radius: 8px; font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transform: translateX(400px); transition: transform 0.4s ease; z-index: 1000;
+        }
+        .toast.show { transform: translateX(0); }
+
+        /* Success message */
+        .success-msg {
+            background: #eafaf1; border: 1px solid #a9dfbf; color: #27ae60;
+            padding: 15px 20px; border-radius: 8px; margin-bottom: 20px;
+            font-weight: 600; text-align: center; display: none;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.4rem; }
+            .header-user { position: static; transform: none; justify-content: center; margin-top: 10px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .btn-row { flex-direction: column; }
+            .btn { width: 100%; text-align: center; }
+            .login-card { margin: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN PAGE -->
+    <div class="login-page" id="loginPage">
+        <div class="login-card">
+            <div class="logo-title">Sainath Aggarbatti Bhandar</div>
+            <div class="logo-subtitle">Employee Login</div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUsername" placeholder="Enter username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter password" required autocomplete="current-password">
+                </div>
+                <div class="login-error" id="loginError"></div>
+                <button type="submit" class="btn-login">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- APP PAGE -->
+    <div class="app-page" id="appPage">
+        <div class="header">
+            <h1>Sainath Aggarbatti Bhandar</h1>
+            <p>Order Entry System</p>
+            <div class="header-user">
+                <span id="headerUsername"></span>
+                <button class="btn-logout" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="main-container">
+            <div class="success-msg" id="successMsg">Order submitted successfully!</div>
+            <div class="form-card">
+                <h2>New Order</h2>
+                <form id="orderForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Employee Name</label>
+                            <input type="text" id="employeeName" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Retailer <span class="required">*</span></label>
+                            <select id="retailerName" required>
+                                <option value="">-- Select Retailer --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Product <span class="required">*</span></label>
+                            <select id="productName" required>
+                                <option value="">-- Select Product --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Quantity <span class="required">*</span></label>
+                            <input type="number" id="quantity" min="1" placeholder="Enter quantity" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Special Price (if any)</label>
+                            <input type="number" id="specialPrice" min="0" step="0.01" placeholder="Leave blank if standard price">
+                        </div>
+                        <div class="form-group">
+                            <label>Remarks / Comments</label>
+                            <input type="text" id="remarks" placeholder="Any special instructions">
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-reset" onclick="resetForm()">Clear</button>
+                        <button type="submit" class="btn btn-submit">Submit Order</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Order submitted successfully!</div>
+
+    <script>
+        let currentUser = null;
+
+        // Check session
+        const saved = sessionStorage.getItem("sainath_user");
+        if (saved) {
+            currentUser = JSON.parse(saved);
+            if (currentUser.role === "admin") {
+                window.location.href = "/admin";
+            } else {
+                showApp();
+            }
+        }
+
+        // Login
+        document.getElementById("loginForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const username = document.getElementById("loginUsername").value.trim();
+            const password = document.getElementById("loginPassword").value;
+
+            const res = await fetch("/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (!res.ok) {
+                document.getElementById("loginError").textContent = "Invalid username or password.";
+                return;
+            }
+
+            currentUser = await res.json();
+            sessionStorage.setItem("sainath_user", JSON.stringify(currentUser));
+
+            if (currentUser.role === "admin") {
+                window.location.href = "/admin";
+            } else {
+                showApp();
+            }
+        });
+
+        async function showApp() {
+            document.getElementById("loginPage").style.display = "none";
+            document.getElementById("appPage").style.display = "block";
+            document.getElementById("headerUsername").textContent = currentUser.displayName;
+            document.getElementById("employeeName").value = currentUser.displayName;
+
+            // Load dropdown data
+            const res = await fetch("/api/data");
+            const data = await res.json();
+            populateDropdown("retailerName", data.retailers);
+            populateDropdown("productName", data.products);
+        }
+
+        function populateDropdown(selectId, items) {
+            const select = document.getElementById(selectId);
+            if (select.options.length > 1) return;
+            items.forEach(item => {
+                const opt = document.createElement("option");
+                opt.value = item;
+                opt.textContent = item;
+                select.appendChild(opt);
+            });
+        }
+
+        function logout() {
+            sessionStorage.removeItem("sainath_user");
+            location.reload();
+        }
+
+        // Submit order
+        document.getElementById("orderForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const order = {
+                employee: document.getElementById("employeeName").value,
+                retailer: document.getElementById("retailerName").value,
+                product: document.getElementById("productName").value,
+                quantity: parseInt(document.getElementById("quantity").value),
+                specialPrice: document.getElementById("specialPrice").value || "",
+                remarks: document.getElementById("remarks").value.trim() || ""
+            };
+
+            const res = await fetch("/api/orders", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(order)
+            });
+
+            if (res.ok) {
+                showToast();
+                document.getElementById("retailerName").value = "";
+                document.getElementById("productName").value = "";
+                document.getElementById("quantity").value = "";
+                document.getElementById("specialPrice").value = "";
+                document.getElementById("remarks").value = "";
+            }
+        });
+
+        function resetForm() {
+            document.getElementById("retailerName").value = "";
+            document.getElementById("productName").value = "";
+            document.getElementById("quantity").value = "";
+            document.getElementById("specialPrice").value = "";
+            document.getElementById("remarks").value = "";
+        }
+
+        function showToast() {
+            const toast = document.getElementById("toast");
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 2500);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sainath Aggarbatti Bhandar - Admin Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fff8f0; min-height: 100vh; }
+
+        .header {
+            background: linear-gradient(135deg, #b8860b, #e8a317, #d4851f);
+            color: white; padding: 20px 30px; text-align: center;
+            box-shadow: 0 4px 15px rgba(184, 134, 11, 0.4); position: relative;
+        }
+        .header h1 { font-size: 2rem; font-weight: 700; letter-spacing: 1px; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
+        .header p { font-size: 0.95rem; margin-top: 5px; opacity: 0.9; }
+        .header-user {
+            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .header-user span { font-size: 0.9rem; opacity: 0.95; }
+        .btn-logout {
+            background: rgba(255,255,255,0.2); color: white;
+            border: 1px solid rgba(255,255,255,0.4); padding: 6px 16px;
+            border-radius: 6px; font-size: 0.85rem; cursor: pointer; transition: background 0.2s;
+        }
+        .btn-logout:hover { background: rgba(255,255,255,0.35); }
+
+        .main-container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+
+        /* Filter bar */
+        .filter-bar {
+            background: white; border-radius: 12px; padding: 20px 25px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08); border-top: 4px solid #d4851f;
+            display: flex; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: 25px;
+        }
+        .filter-bar label { font-weight: 600; color: #555; font-size: 0.9rem; }
+        .filter-bar input[type="date"] {
+            padding: 9px 14px; border: 2px solid #e0d5c5; border-radius: 8px;
+            font-size: 0.95rem; font-family: inherit; cursor: pointer;
+        }
+        .filter-bar input[type="date"]:focus { outline: none; border-color: #d4851f; box-shadow: 0 0 0 3px rgba(212,133,31,0.15); }
+        .btn-filter {
+            padding: 9px 22px; background: linear-gradient(135deg, #d4851f, #e8a317);
+            color: white; border: none; border-radius: 8px; font-weight: 600;
+            font-size: 0.9rem; cursor: pointer; transition: box-shadow 0.2s;
+        }
+        .btn-filter:hover { box-shadow: 0 4px 12px rgba(212,133,31,0.35); }
+
+        .btn-export {
+            margin-left: auto; padding: 9px 22px; background: #b8860b; color: white;
+            border: none; border-radius: 8px; font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .btn-export:hover { background: #9a7209; }
+
+        /* Stats */
+        .stats-row {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px; margin-bottom: 25px;
+        }
+        .stat-card {
+            background: white; border-radius: 10px; padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.06); text-align: center;
+        }
+        .stat-card .stat-value { font-size: 2rem; font-weight: 700; color: #b8860b; }
+        .stat-card .stat-label { font-size: 0.85rem; color: #888; margin-top: 4px; }
+
+        /* Orders Table */
+        .orders-section {
+            background: white; border-radius: 12px; padding: 25px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08); border-top: 4px solid #b8860b;
+        }
+        .orders-section h2 { color: #b8860b; margin-bottom: 20px; font-size: 1.3rem; }
+
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            background: linear-gradient(135deg, #b8860b, #d4851f); color: white;
+            padding: 12px 15px; text-align: left; font-size: 0.85rem;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        thead th:first-child { border-radius: 8px 0 0 0; }
+        thead th:last-child { border-radius: 0 8px 0 0; }
+        tbody td { padding: 11px 15px; border-bottom: 1px solid #f0e6d6; font-size: 0.9rem; color: #444; }
+        tbody tr:hover { background: #fff8f0; }
+        tbody tr:last-child td { border-bottom: none; }
+
+        .badge-employee {
+            background: #fef3e2; color: #d4851f; padding: 3px 10px;
+            border-radius: 12px; font-size: 0.82rem; font-weight: 600;
+        }
+        .badge-price { color: #27ae60; font-weight: 600; }
+
+        .btn-delete {
+            background: none; border: none; color: #e74c3c; cursor: pointer;
+            font-size: 1.1rem; padding: 4px 8px; border-radius: 4px; transition: background 0.2s;
+        }
+        .btn-delete:hover { background: #fdeaea; }
+
+        .no-orders { text-align: center; color: #aaa; padding: 40px 20px; font-size: 1rem; }
+
+        /* Access denied */
+        .access-denied {
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+            background: linear-gradient(135deg, #fff8f0 0%, #fce8d0 100%);
+        }
+        .access-denied-card {
+            background: white; border-radius: 16px; padding: 40px 35px;
+            box-shadow: 0 8px 30px rgba(184, 134, 11, 0.15);
+            border-top: 5px solid #e74c3c; text-align: center; max-width: 400px;
+        }
+        .access-denied-card h2 { color: #e74c3c; margin-bottom: 10px; }
+        .access-denied-card p { color: #777; margin-bottom: 20px; }
+        .access-denied-card a {
+            color: #d4851f; font-weight: 600; text-decoration: none;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.4rem; }
+            .header-user { position: static; transform: none; justify-content: center; margin-top: 10px; }
+            .filter-bar { flex-direction: column; align-items: stretch; }
+            .btn-export { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ACCESS DENIED (shown if not admin) -->
+    <div class="access-denied" id="accessDenied" style="display:none;">
+        <div class="access-denied-card">
+            <h2>Access Denied</h2>
+            <p>This page is for administrators only.</p>
+            <a href="/">Go to Employee Login</a>
+        </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD -->
+    <div id="adminPage" style="display:none;">
+        <div class="header">
+            <h1>Sainath Aggarbatti Bhandar</h1>
+            <p>Admin Dashboard</p>
+            <div class="header-user">
+                <span id="headerUsername"></span>
+                <button class="btn-logout" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="main-container">
+            <!-- Filter bar -->
+            <div class="filter-bar">
+                <label>Date:</label>
+                <input type="date" id="filterDate">
+                <button class="btn-filter" onclick="loadOrders()">Show Orders</button>
+                <button class="btn-export" onclick="exportCSV()">Export to CSV</button>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-value" id="statTotal">0</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statQty">0</div>
+                    <div class="stat-label">Total Quantity</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statEmployees">0</div>
+                    <div class="stat-label">Employees Active</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statRetailers">0</div>
+                    <div class="stat-label">Retailers Served</div>
+                </div>
+            </div>
+
+            <!-- Orders table -->
+            <div class="orders-section">
+                <h2 id="tableTitle">Today's Orders</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Time</th>
+                                <th>Employee</th>
+                                <th>Retailer</th>
+                                <th>Product</th>
+                                <th>Qty</th>
+                                <th>Sp. Price</th>
+                                <th>Remarks</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersBody">
+                            <tr><td colspan="9" class="no-orders">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let currentOrders = [];
+
+        // Check auth
+        const saved = sessionStorage.getItem("sainath_user");
+        if (!saved) {
+            window.location.href = "/";
+        } else {
+            currentUser = JSON.parse(saved);
+            if (currentUser.role !== "admin") {
+                document.getElementById("accessDenied").style.display = "flex";
+            } else {
+                document.getElementById("adminPage").style.display = "block";
+                document.getElementById("headerUsername").textContent = currentUser.displayName;
+                // Set date to today
+                document.getElementById("filterDate").valueAsDate = new Date();
+                loadOrders();
+            }
+        }
+
+        async function loadOrders() {
+            const date = document.getElementById("filterDate").value;
+            const res = await fetch("/api/orders?date=" + date);
+            currentOrders = await res.json();
+
+            // Update title
+            const dateObj = new Date(date + "T00:00:00");
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            dateObj.setHours(0,0,0,0);
+            if (dateObj.getTime() === today.getTime()) {
+                document.getElementById("tableTitle").textContent = "Today's Orders";
+            } else {
+                document.getElementById("tableTitle").textContent =
+                    "Orders for " + dateObj.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+            }
+
+            // Stats
+            document.getElementById("statTotal").textContent = currentOrders.length;
+            document.getElementById("statQty").textContent = currentOrders.reduce((s, o) => s + o.quantity, 0);
+            document.getElementById("statEmployees").textContent = new Set(currentOrders.map(o => o.employee)).size;
+            document.getElementById("statRetailers").textContent = new Set(currentOrders.map(o => o.retailer)).size;
+
+            // Render table
+            const tbody = document.getElementById("ordersBody");
+            if (currentOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="no-orders">No orders found for this date.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = currentOrders.map((o, i) => {
+                const time = new Date(o.created_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+                const sp = o.special_price && o.special_price !== "-" ? "\u20B9" + o.special_price : "-";
+                return `<tr>
+                    <td>${currentOrders.length - i}</td>
+                    <td>${time}</td>
+                    <td><span class="badge-employee">${o.employee}</span></td>
+                    <td>${o.retailer}</td>
+                    <td>${o.product}</td>
+                    <td>${o.quantity}</td>
+                    <td class="badge-price">${sp}</td>
+                    <td>${o.remarks || "-"}</td>
+                    <td><button class="btn-delete" title="Delete" onclick="deleteOrder(${o.id})">&#10005;</button></td>
+                </tr>`;
+            }).join("");
+        }
+
+        async function deleteOrder(id) {
+            if (!confirm("Delete this order?")) return;
+            await fetch("/api/orders/" + id, { method: "DELETE" });
+            loadOrders();
+        }
+
+        function logout() {
+            sessionStorage.removeItem("sainath_user");
+            window.location.href = "/";
+        }
+
+        function exportCSV() {
+            if (currentOrders.length === 0) {
+                alert("No orders to export.");
+                return;
+            }
+            const date = document.getElementById("filterDate").value;
+            const headers = ["#", "Date", "Time", "Employee", "Retailer", "Product", "Quantity", "Special Price", "Remarks"];
+            const rows = currentOrders.map((o, i) => {
+                const d = new Date(o.created_at);
+                return [
+                    currentOrders.length - i,
+                    d.toLocaleDateString("en-IN"),
+                    d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }),
+                    o.employee, o.retailer, o.product, o.quantity,
+                    o.special_price || "-", o.remarks || "-"
+                ];
+            });
+
+            let csv = headers.join(",") + "\n";
+            rows.forEach(row => {
+                csv += row.map(val => `"${val}"`).join(",") + "\n";
+            });
+
+            const blob = new Blob([csv], { type: "text/csv" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `Sainath_Orders_${date}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "sainath-aggarbatti-bhandar",
+  "version": "1.0.0",
+  "description": "Order entry system for Sainath Aggarbatti Bhandar",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "express": "^4.21.0"
+  }
+}
